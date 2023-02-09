@@ -5,15 +5,34 @@ const client = require('./module/connection');
 app.get('/api/search', async (req, res) => {
     const size = req.query.size;
     const from = req.query.from;
+    console.log(req.query.query);
     const result = await client.search({
         index: 'book_data_*',
         track_total_hits: true,
         from: from,
         size: size,
         query: {
-            match : { 
-                "TITLE_NM.nori" : req.query.query
-            }
+            bool: {
+                must: [
+                  {
+                    match: {
+                        "TITLE_NM.ngram": {
+                        query: req.query.query
+                      }
+                    }
+                  }
+                ],
+                should: [
+                  {
+                    match_phrase: {
+                      "TITLE_NM": req.query.query
+                    }
+                  }
+                ]
+              }
+        },
+        collapse : {
+            field : "ISBN_THIRTEEN_NO",
         }
     });
     console.log(result);
