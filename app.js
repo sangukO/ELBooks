@@ -5,7 +5,6 @@ const client = require('./module/connection');
 app.get('/api/search', async (req, res) => {
     const size = req.query.size;
     const from = req.query.from;
-    console.log(req.query.query);
     const result = await client.search({
         index: 'book_data_*',
         track_total_hits: true,
@@ -33,12 +32,19 @@ app.get('/api/search', async (req, res) => {
         },
         collapse : {
             field : "ISBN_THIRTEEN_NO",
+        },
+        highlight : {
+          pre_tags : ["<mark>"],
+          post_tags : ["</mark>"],
+          fields : {
+            "TITLE_NM.ngram" : {}
+          }
         }
     });
-    console.log(result);
     res.send({"size":((from/10)+1)*size,
               "count":result.hits.total.value,
-              "data":result.hits.hits});
+              "data":result.hits.hits,
+              "highlight":result.hits.hits.highlight});
 })
 
 app.get('/api/single', async (req, res) => {
