@@ -61,4 +61,9 @@ app.get('/api/single', async (req, res) => {
     res.send({"data":result.hits.hits});
 })
 
+app.get('/api/transfer', (req, res) => {
+  console.log(req.query);
+  
+})
+
 app.listen(4000);
